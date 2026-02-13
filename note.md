@@ -50,3 +50,33 @@
 2. Run local validation + mint 3 lần liên tiếp
 3. Add Vercel preview deployment
 4. Open PR with checklist
+
+---
+
+## Wither review update (handoff for anh)
+
+### What I checked
+- Pulled latest `main` (PR #1 already merged).
+- Reviewed implementation files: `components/MintForm.tsx`, `components/SolanaProvider.tsx`, `package.json`.
+- Confirmed baseline feature set is present per v1 scope.
+
+### Current blocker found
+- Local build failed due environment/runtime issue, not core mint logic:
+  1) Parent workspace config interfered with package manager resolution.
+  2) SWC binary issue on this machine (`@next/swc-darwin-arm64` load failed / corrupted binary).
+  3) After fixing SWC, build progressed but still needs a clean final pass on a stable environment.
+
+### What was done to unblock
+- Regenerated local lock context in project.
+- Reinstalled SWC package for Next 14:
+  - `npm install @next/swc-darwin-arm64@14.2.5 --save-dev --legacy-peer-deps`
+- Build now goes further; warning seen from walletconnect dependency (`pino-pretty` optional), not immediate mint blocker.
+
+### Suggested next execution (anh/Praxis)
+1. Run in clean repo shell (outside parent workspace toolchain):
+   - `cd ~/Desktop/ZAH-CODE/Znft`
+   - `rm -rf node_modules .next`
+   - `npm install --legacy-peer-deps`
+   - `NEXT_DISABLE_TURBOPACK=1 npx next build`
+2. If build passes, deploy to Vercel and validate 3 successful devnet mints.
+3. Keep Metaplex JS for v1 speed; migrate to Umi in v1.1 if needed.
