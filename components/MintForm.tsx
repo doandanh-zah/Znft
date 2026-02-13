@@ -4,16 +4,21 @@ import { ChangeEvent, useMemo, useState } from "react";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { Metaplex, walletAdapterIdentity } from "@metaplex-foundation/js";
+import { PublicKey } from "@solana/web3.js";
+import { useSolanaNetwork } from "./SolanaProvider";
 
 export default function MintForm() {
   const { connection } = useConnection();
   const wallet = useWallet();
+  const { network, setNetwork } = useSolanaNetwork();
 
   const [name, setName] = useState("ZNFT Demo");
   const [symbol, setSymbol] = useState("ZNFT");
   const [description, setDescription] = useState("Demo NFT on Solana devnet");
   const [imageUri, setImageUri] = useState("https://placehold.co/600x600/png");
+  const [recipient, setRecipient] = useState("");
   const [mintAddress, setMintAddress] = useState("");
+  const [ownerAddress, setOwnerAddress] = useState("");
   const [signature, setSignature] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -58,9 +63,17 @@ export default function MintForm() {
     setError("");
     setMintAddress("");
     setSignature("");
+    setOwnerAddress("");
 
     if (!wallet.publicKey) return setError("Please connect wallet first.");
     if (!imageUri) return setError("Image URI is required.");
+
+    let tokenOwner: PublicKey;
+    try {
+      tokenOwner = recipient.trim() ? new PublicKey(recipient.trim()) : wallet.publicKey;
+    } catch {
+      return setError("Recipient wallet address không hợp lệ.");
+    }
 
     setLoading(true);
     try {
@@ -80,12 +93,13 @@ export default function MintForm() {
         name,
         sellerFeeBasisPoints: 0,
         symbol,
-        tokenOwner: wallet.publicKey,
+        tokenOwner,
         isMutable: true,
       });
 
       setMintAddress(nft.address.toBase58());
       setSignature(response.signature);
+      setOwnerAddress(tokenOwner.toBase58());
     } catch (e: any) {
       setError(e?.message || "Mint failed.");
     } finally {
@@ -99,10 +113,25 @@ export default function MintForm() {
       <p className="small">Mint NFT devnet nhanh, mượt và rõ ràng.</p>
 
       <div className="section">
-        <p className="small" style={{ marginBottom: 10 }}>
-          Network: {process.env.NEXT_PUBLIC_NETWORK || "devnet"}
-        </p>
-        <WalletMultiButton />
+        <div className="row">
+          <div>
+            <label>Network</label>
+            <select
+              value={network}
+              onChange={(e) => setNetwork(e.target.value as "devnet" | "mainnet-beta")}
+              style={{ width: "100%", marginTop: 8, marginBottom: 14 }}
+            >
+              <option value="devnet">Devnet</option>
+              <option value="mainnet-beta">Mainnet</option>
+            </select>
+            <p className="small" style={{ marginBottom: 10 }}>
+              Đang dùng: {network}
+            </p>
+          </div>
+          <div style={{ display: "flex", alignItems: "end" }}>
+            <WalletMultiButton />
+          </div>
+        </div>
       </div>
 
       <div className="section">
@@ -127,6 +156,13 @@ export default function MintForm() {
         <label>Description</label>
         <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={4} />
 
+        <label>Recipient Wallet (optional)</label>
+        <input
+          value={recipient}
+          onChange={(e) => setRecipient(e.target.value)}
+          placeholder="Nếu để trống sẽ mint vào ví đang connect"
+        />
+
         <div className="actions">
           <button onClick={onMint} disabled={loading || uploading || !wallet.connected}>
             {loading ? "Minting..." : uploading ? "Uploading image..." : "Mint NFT (Devnet)"}
@@ -141,12 +177,13 @@ export default function MintForm() {
         <div className="result">
           <p className="success">Mint thành công ✅</p>
           <p className="small">Mint: {mintAddress}</p>
+          <p className="small">Owner: {ownerAddress || wallet.publicKey?.toBase58()}</p>
           <p className="small">Tx: {signature}</p>
-          <a href={`https://explorer.solana.com/address/${mintAddress}?cluster=devnet`} target="_blank">
+          <a href={`https://explorer.solana.com/address/${mintAddress}?cluster=${network}`} target="_blank">
             Xem mint trên Explorer
           </a>
           <br />
-          <a href={`https://explorer.solana.com/tx/${signature}?cluster=devnet`} target="_blank">
+          <a href={`https://explorer.solana.com/tx/${signature}?cluster=${network}`} target="_blank">
             Xem transaction
           </a>
         </div>

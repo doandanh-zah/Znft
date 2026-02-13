@@ -60,7 +60,7 @@ label {
   margin-top: 2px;
 }
 
-input, textarea {
+input, textarea, select {
   width: 100%;
   margin-top: 8px;
   margin-bottom: 14px;
@@ -73,7 +73,7 @@ input, textarea {
   transition: border-color .2s ease, box-shadow .2s ease, transform .15s ease;
 }
 
-input:focus, textarea:focus {
+input:focus, textarea:focus, select:focus {
   border-color: #6d8fff;
   box-shadow: 0 0 0 4px #6d8fff22;
 }
