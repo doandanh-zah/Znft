@@ -96,10 +96,16 @@ export default function MintForm() {
   return (
     <div className="card">
       <h2>Znft Devnet Mint</h2>
-      <p className="small">Network: {process.env.NEXT_PUBLIC_NETWORK || "devnet"}</p>
-      <WalletMultiButton />
+      <p className="small">Mint NFT devnet nhanh, mượt và rõ ràng.</p>
 
-      <div style={{ marginTop: 16 }}>
+      <div className="section">
+        <p className="small" style={{ marginBottom: 10 }}>
+          Network: {process.env.NEXT_PUBLIC_NETWORK || "devnet"}
+        </p>
+        <WalletMultiButton />
+      </div>
+
+      <div className="section">
         <label>Name</label>
         <input value={name} onChange={(e) => setName(e.target.value)} />
 
@@ -121,15 +127,18 @@ export default function MintForm() {
         <label>Description</label>
         <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={4} />
 
-        <button onClick={onMint} disabled={loading || uploading || !wallet.connected}>
-          {loading ? "Minting..." : uploading ? "Uploading image..." : "Mint NFT (Devnet)"}
-        </button>
+        <div className="actions">
+          <button onClick={onMint} disabled={loading || uploading || !wallet.connected}>
+            {loading ? "Minting..." : uploading ? "Uploading image..." : "Mint NFT (Devnet)"}
+          </button>
+          <span className="small">1 NFT / transaction</span>
+        </div>
       </div>
 
       {error && <p className="error">{error}</p>}
 
       {mintAddress && (
-        <div style={{ marginTop: 12 }}>
+        <div className="result">
           <p className="success">Mint thành công ✅</p>
           <p className="small">Mint: {mintAddress}</p>
           <p className="small">Tx: {signature}</p>
