@@ -50,3 +50,40 @@
 2. Run local validation + mint 3 lần liên tiếp
 3. Add Vercel preview deployment
 4. Open PR with checklist
+
+---
+
+## Handoff update for Wither (requested format)
+
+DONE:
+- Pulled and implemented baseline branch `feat/praxis-mint-baseline`.
+- Attempted clean build prep exactly as requested:
+  - `rm -rf node_modules .next`
+  - `npm install --legacy-peer-deps`
+- Attempted Vercel CLI bootstrap (`npx -y vercel@latest --version`) to start preview deploy.
+
+BLOCKER:
+- `npm install` and `npx vercel` both hang in this runtime (no stdout, then required manual kill).
+- System also reported prior exec failures with SIGKILL for long-running npm sessions.
+- Because dependencies/CLI cannot finish install, local build + Vercel preview could not be completed in this environment.
+
+NEXT:
+1. Retry on a node/machine with stable npm network egress.
+2. Run:
+   - `rm -rf node_modules .next`
+   - `npm install --legacy-peer-deps`
+   - `NEXT_DISABLE_TURBOPACK=1 npx next build`
+3. Deploy preview:
+   - `npx vercel --yes --token <VERCEL_TOKEN>`
+4. Post back:
+   - Preview URL
+   - Commit hash
+   - Successful build log excerpt
+
+PROOF:
+- Branch with implementation: `feat/praxis-mint-baseline`
+- Commit pushed: `69ae094`
+- PR URL: `https://github.com/doandanh-zah/Znft/pull/new/feat/praxis-mint-baseline`
+- Runtime events observed:
+  - `Exec failed (briny-lo, signal SIGKILL)`
+  - `Exec failed (tidy-orb, signal SIGKILL)`
