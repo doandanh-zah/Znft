@@ -64,8 +64,19 @@ export default function MintForm() {
 
     setLoading(true);
     try {
+      const metadataRes = await fetch("/api/metadata", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, symbol, description, image: imageUri }),
+      });
+
+      const metadataJson = await metadataRes.json();
+      if (!metadataRes.ok || !metadataJson?.uri) {
+        throw new Error(metadataJson?.error || "Create metadata failed");
+      }
+
       const { nft, response } = await metaplex.nfts().create({
-        uri: imageUri,
+        uri: metadataJson.uri,
         name,
         sellerFeeBasisPoints: 0,
         symbol,

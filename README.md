@@ -36,7 +36,8 @@ Mở `http://localhost:3000`.
 
 ## Notes
 - Ảnh upload dùng ImgBB API key (`NEXT_PUBLIC_IMGBB_API_KEY`).
-- Đã bỏ data URI metadata để tránh lỗi `UriTooLong` khi mint.
+- App tạo metadata JSON chuẩn (`name/symbol/description/image`) qua API route `/api/metadata` và lưu public trên jsonblob, rồi mint với URI metadata đó.
+- Cách này tránh lỗi `UriTooLong` và giúp Solscan/wallet render ảnh tốt hơn.
 
 ## Nhánh làm việc
 - main: stable
