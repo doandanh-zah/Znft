@@ -42,10 +42,10 @@ body {
 .card {
   background: var(--surface);
   border: 1px solid var(--line);
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(10px);
   border-radius: 20px;
-  padding: 22px;
-  box-shadow: 0 10px 35px #00000040;
+  padding: 24px;
+  box-shadow: 0 14px 40px #00000055;
   animation: fadeIn 320ms ease;
 }
 
@@ -62,10 +62,40 @@ h2 {
   text-shadow: 0 0 10px #7b8fff66;
 }
 
+.hero-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 12px;
+}
+
+.status-chip {
+  border: 1px solid #3d518e;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 10px;
+  color: #b8c7f7;
+  background: #121b35;
+  white-space: nowrap;
+}
+
 .section {
   margin-top: 18px;
   padding-top: 14px;
   border-top: 1px dashed #36457a;
+}
+
+.notice {
+  margin-top: 14px;
+  border-radius: 14px;
+  padding: 12px;
+  font-size: 10px;
+}
+
+.notice.warn {
+  border: 1px solid #6f5a2a;
+  background: #261f11;
+  color: #f2d08b;
 }
 
 label {
@@ -142,4 +172,5 @@ a:hover { text-decoration: underline; }
 
 @media (max-width: 720px) {
   .row { grid-template-columns: 1fr; }
+  .hero-row { flex-direction: column; }
 }

@@ -155,8 +155,13 @@ export default function MintForm() {
 
   return (
     <div className="card">
-      <h2>ZNFT Mint Studio</h2>
-      <p className="small">Mint NFTs on Solana with a clean and fast flow.</p>
+      <div className="hero-row">
+        <div>
+          <h2>ZNFT Mint Studio</h2>
+          <p className="small">Mint NFTs on Solana with a clean, reliable, and production-ready flow.</p>
+        </div>
+        <div className="status-chip">{wallet.connected ? "Wallet Connected" : "Wallet Not Connected"}</div>
+      </div>
 
       <div className="section">
         <div className="row">
@@ -167,13 +172,21 @@ export default function MintForm() {
               <option value="mainnet-beta">Mainnet</option>
             </select>
             <p className="small" style={{ marginBottom: 6 }}>Current: {network}</p>
-            <p className="small" style={{ marginBottom: 10, wordBreak: "break-all" }}>RPC: {connection.rpcEndpoint}</p>
+            <p className="small" style={{ marginBottom: 10 }}>
+              Provider: {network === "mainnet-beta" ? "Mainnet Provider (secured)" : "Devnet Provider"}
+            </p>
           </div>
           <div style={{ display: "flex", alignItems: "end" }}>
             <WalletMultiButton />
           </div>
         </div>
       </div>
+
+      {network === "mainnet-beta" && (
+        <div className="notice warn">
+          Mainnet mode is live. Transactions use real SOL and cannot be reversed.
+        </div>
+      )}
 
       <div className="section">
         <label>Name</label>
