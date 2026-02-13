@@ -38,7 +38,7 @@ Mở `http://localhost:3000`.
 - Ảnh upload dùng ImgBB API key (`NEXT_PUBLIC_IMGBB_API_KEY`).
 - App tạo metadata JSON chuẩn (`name/symbol/description/image`) qua API route `/api/metadata` và lưu public trên jsonblob, rồi mint với URI metadata đó.
 - Cách này tránh lỗi `UriTooLong` và giúp Solscan/wallet render ảnh tốt hơn.
-
+- Nếu mainnet báo 403, thay `NEXT_PUBLIC_SOLANA_RPC_MAINNET` bằng RPC có quyền truy cập tốt hơn (Helius/QuickNode/Alchemy/Ankr).
 ## Nhánh làm việc
 - main: stable
 - feat/*: tính năng

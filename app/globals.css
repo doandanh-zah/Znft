@@ -12,12 +12,25 @@
 
 body {
   margin: 0;
-  font-family: Inter, Arial, sans-serif;
   color: var(--text);
+  line-height: 1.7;
   background:
     radial-gradient(1200px 600px at 10% -10%, #22376e44, transparent),
     radial-gradient(800px 500px at 100% 0%, #5a2f7a33, transparent),
+    repeating-linear-gradient(
+      45deg,
+      rgba(130, 156, 255, 0.04) 0px,
+      rgba(130, 156, 255, 0.04) 2px,
+      transparent 2px,
+      transparent 14px
+    ),
     var(--bg);
+  animation: bgShift 12s ease-in-out infinite alternate;
+}
+
+@keyframes bgShift {
+  from { background-position: 0 0, 0 0, 0 0, 0 0; }
+  to { background-position: 20px -10px, -15px 15px, 30px 20px, 0 0; }
 }
 
 .container {
@@ -43,8 +56,10 @@ body {
 
 h2 {
   margin-top: 0;
-  margin-bottom: 6px;
-  font-size: 28px;
+  margin-bottom: 10px;
+  font-size: 18px;
+  letter-spacing: 1px;
+  text-shadow: 0 0 10px #7b8fff66;
 }
 
 .section {
@@ -54,7 +69,7 @@ h2 {
 }
 
 label {
-  font-size: 13px;
+  font-size: 11px;
   color: #c7d1ec;
   display: block;
   margin-top: 2px;
@@ -97,7 +112,7 @@ button:disabled { opacity: 0.62; cursor: not-allowed; box-shadow: none; }
 .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .actions { display: flex; gap: 10px; align-items: center; margin-top: 2px; }
 
-.small { color: var(--muted); font-size: 13px; margin: 0; }
+.small { color: var(--muted); font-size: 10px; margin: 0; }
 .success { color: #59e9a7; }
 .error { color: #ff8b8b; }
 a { color: #9cb6ff; text-decoration: none; }

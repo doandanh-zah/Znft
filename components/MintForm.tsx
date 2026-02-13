@@ -96,7 +96,14 @@ export default function MintForm() {
       const totalSol = totalLamports / 1_000_000_000;
       setEstimatedSol(totalSol.toFixed(6));
     } catch (e: any) {
-      setError(e?.message || "Estimate failed.");
+      const msg = e?.message || "Estimate failed.";
+      if (msg.includes("403") || msg.toLowerCase().includes("access forbidden")) {
+        setError(
+          "RPC mainnet đang bị chặn (403). Hãy đổi RPC Mainnet trong env (NEXT_PUBLIC_SOLANA_RPC_MAINNET) sang endpoint có quyền truy cập."
+        );
+      } else {
+        setError(msg);
+      }
     } finally {
       setEstimating(false);
     }
@@ -144,7 +151,14 @@ export default function MintForm() {
       setSignature(response.signature);
       setOwnerAddress(tokenOwner.toBase58());
     } catch (e: any) {
-      setError(e?.message || "Mint failed.");
+      const msg = e?.message || "Mint failed.";
+      if (msg.includes("403") || msg.toLowerCase().includes("access forbidden")) {
+        setError(
+          "RPC mainnet đang bị chặn (403). Hãy đổi RPC Mainnet trong env (NEXT_PUBLIC_SOLANA_RPC_MAINNET) sang endpoint có quyền truy cập."
+        );
+      } else {
+        setError(msg);
+      }
     } finally {
       setLoading(false);
     }
@@ -167,8 +181,11 @@ export default function MintForm() {
               <option value="devnet">Devnet</option>
               <option value="mainnet-beta">Mainnet</option>
             </select>
-            <p className="small" style={{ marginBottom: 10 }}>
+            <p className="small" style={{ marginBottom: 6 }}>
               Đang dùng: {network}
+            </p>
+            <p className="small" style={{ marginBottom: 10, wordBreak: "break-all" }}>
+              RPC: {connection.rpcEndpoint}
             </p>
           </div>
           <div style={{ display: "flex", alignItems: "end" }}>

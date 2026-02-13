@@ -24,7 +24,8 @@ const pickDefaultNetwork = (): SolanaNetwork => {
 
 const endpointByNetwork = (network: SolanaNetwork) => {
   if (network === "mainnet-beta") {
-    return process.env.NEXT_PUBLIC_SOLANA_RPC_MAINNET || clusterApiUrl("mainnet-beta");
+    // Default to a public RPC that is less likely to reject anonymous browser traffic.
+    return process.env.NEXT_PUBLIC_SOLANA_RPC_MAINNET || "https://rpc.ankr.com/solana";
   }
   return process.env.NEXT_PUBLIC_SOLANA_RPC_DEVNET || process.env.NEXT_PUBLIC_SOLANA_RPC || clusterApiUrl("devnet");
 };
