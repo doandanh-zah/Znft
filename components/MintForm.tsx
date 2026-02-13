@@ -4,7 +4,7 @@ import { ChangeEvent, useMemo, useState } from "react";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { Metaplex, walletAdapterIdentity } from "@metaplex-foundation/js";
-import { PublicKey } from "@solana/web3.js";
+import { PublicKey, SystemProgram, TransactionMessage, VersionedTransaction } from "@solana/web3.js";
 import { useSolanaNetwork } from "./SolanaProvider";
 
 export default function MintForm() {
@@ -23,6 +23,8 @@ export default function MintForm() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [estimating, setEstimating] = useState(false);
+  const [estimatedSol, setEstimatedSol] = useState<string>("");
 
   const metaplex = useMemo(() => Metaplex.make(connection).use(walletAdapterIdentity(wallet)), [connection, wallet]);
 
@@ -56,6 +58,47 @@ export default function MintForm() {
       setError(err?.message || "Upload ảnh thất bại");
     } finally {
       setUploading(false);
+    }
+  };
+
+  const onEstimate = async () => {
+    if (!wallet.publicKey) return setError("Please connect wallet first.");
+
+    setEstimating(true);
+    setError("");
+    try {
+      const { blockhash } = await connection.getLatestBlockhash();
+
+      const msg = new TransactionMessage({
+        payerKey: wallet.publicKey,
+        recentBlockhash: blockhash,
+        instructions: [
+          SystemProgram.transfer({
+            fromPubkey: wallet.publicKey,
+            toPubkey: wallet.publicKey,
+            lamports: 1,
+          }),
+        ],
+      }).compileToV0Message();
+
+      const tx = new VersionedTransaction(msg);
+      const feeRes = await connection.getFeeForMessage(tx.message, "confirmed");
+      const networkFeeLamports = feeRes.value ?? 5000;
+
+      // Rough rent estimate for NFT account set (mint + ATA + metadata + master edition)
+      const mintRent = await connection.getMinimumBalanceForRentExemption(82);
+      const ataRent = await connection.getMinimumBalanceForRentExemption(165);
+      const metadataRent = await connection.getMinimumBalanceForRentExemption(679);
+      const masterEditionRent = await connection.getMinimumBalanceForRentExemption(282);
+
+      const totalLamports =
+        networkFeeLamports * 2 + mintRent + ataRent + metadataRent + masterEditionRent;
+      const totalSol = totalLamports / 1_000_000_000;
+      setEstimatedSol(totalSol.toFixed(6));
+    } catch (e: any) {
+      setError(e?.message || "Estimate failed.");
+    } finally {
+      setEstimating(false);
     }
   };
 
@@ -164,11 +207,20 @@ export default function MintForm() {
         />
 
         <div className="actions">
+          <button onClick={onEstimate} disabled={estimating || !wallet.connected}>
+            {estimating ? "Đang ước tính..." : "Ước tính phí"}
+          </button>
           <button onClick={onMint} disabled={loading || uploading || !wallet.connected}>
-            {loading ? "Minting..." : uploading ? "Uploading image..." : "Mint NFT (Devnet)"}
+            {loading ? "Minting..." : uploading ? "Uploading image..." : `Mint NFT (${network === "mainnet-beta" ? "Mainnet" : "Devnet"})`}
           </button>
           <span className="small">1 NFT / transaction</span>
         </div>
+
+        {estimatedSol && (
+          <p className="small" style={{ marginTop: 10 }}>
+            Ước tính phí mint: ~{estimatedSol} SOL (ước lượng trước khi ký tx)
+          </p>
+        )}
       </div>
 
       {error && <p className="error">{error}</p>}
