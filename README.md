@@ -29,9 +29,14 @@ Mở `http://localhost:3000`.
 
 ## Flow demo
 1. Connect wallet
-2. Điền Name/Symbol/Description/Image URI
-3. Click `Mint NFT (Devnet)`
-4. Xem mint address + tx signature + explorer links
+2. Điền Name/Symbol/Description
+3. Upload ảnh từ thiết bị (hoặc dán Image URI)
+4. Click `Mint NFT (Devnet)`
+5. Xem mint address + tx signature + explorer links
+
+## Notes
+- Ảnh upload dùng ImgBB API key (`NEXT_PUBLIC_IMGBB_API_KEY`).
+- Đã bỏ data URI metadata để tránh lỗi `UriTooLong` khi mint.
 
 ## Nhánh làm việc
 - main: stable

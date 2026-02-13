@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { ChangeEvent, useMemo, useState } from "react";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { Metaplex, walletAdapterIdentity } from "@metaplex-foundation/js";
@@ -17,8 +17,42 @@ export default function MintForm() {
   const [signature, setSignature] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   const metaplex = useMemo(() => Metaplex.make(connection).use(walletAdapterIdentity(wallet)), [connection, wallet]);
+
+  const onSelectFile = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const imgbbKey =
+      process.env.NEXT_PUBLIC_IMGBB_API_KEY || "7359317da099d8eb8ad72b9fe8512564";
+
+    setError("");
+    setUploading(true);
+    try {
+      const form = new FormData();
+      form.append("image", file);
+
+      const res = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbKey}`, {
+        method: "POST",
+        body: form,
+      });
+
+      const json = await res.json();
+      const url = json?.data?.url as string | undefined;
+
+      if (!res.ok || !url) {
+        throw new Error(json?.error?.message || "Upload ảnh thất bại");
+      }
+
+      setImageUri(url);
+    } catch (err: any) {
+      setError(err?.message || "Upload ảnh thất bại");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const onMint = async () => {
     setError("");
@@ -30,12 +64,8 @@ export default function MintForm() {
 
     setLoading(true);
     try {
-      const metadataUri = `data:application/json,${encodeURIComponent(
-        JSON.stringify({ name, symbol, description, image: imageUri })
-      )}`;
-
       const { nft, response } = await metaplex.nfts().create({
-        uri: metadataUri,
+        uri: imageUri,
         name,
         sellerFeeBasisPoints: 0,
         symbol,
@@ -68,16 +98,20 @@ export default function MintForm() {
             <input value={symbol} onChange={(e) => setSymbol(e.target.value)} />
           </div>
           <div>
-            <label>Image URI</label>
-            <input value={imageUri} onChange={(e) => setImageUri(e.target.value)} />
+            <label>Upload image (thiết bị)</label>
+            <input type="file" accept="image/*" onChange={onSelectFile} />
+            <p className="small">{uploading ? "Đang upload ảnh..." : "Upload qua ImgBB"}</p>
           </div>
         </div>
+
+        <label>Image URI</label>
+        <input value={imageUri} onChange={(e) => setImageUri(e.target.value)} />
 
         <label>Description</label>
         <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={4} />
 
-        <button onClick={onMint} disabled={loading || !wallet.connected}>
-          {loading ? "Minting..." : "Mint NFT (Devnet)"}
+        <button onClick={onMint} disabled={loading || uploading || !wallet.connected}>
+          {loading ? "Minting..." : uploading ? "Uploading image..." : "Mint NFT (Devnet)"}
         </button>
       </div>
 
